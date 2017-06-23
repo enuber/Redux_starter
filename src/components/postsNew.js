@@ -1,12 +1,21 @@
 import React, { Component } from 'react';
 import { Field, reduxForm } from 'redux-form';
+import { Link } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { createPost } from '../actions';
 
 class PostsNew extends Component {
 
     //the field object has event handlers we need to use to return info
     renderField(field) {
+
+        //this takes meta off of field and then takes touched and error from meta
+        const { meta: {touched, error} } = field;
+
+        const className = `form-group ${touched && error ? 'has-danger' : ''}`;
+
         return (
-            <div className="form-group">
+            <div className={className}>
                 {/*by passing in an arbitrary property in the field tag we can pull them off to use like props*!/*/}
                 <label>{field.label}</label>
                 <input
@@ -21,13 +30,16 @@ class PostsNew extends Component {
                     {...field.input}
                 />
                 {/*this is already apart of the field parameter so can just be pulled off*/}
-                {field.meta.error}
+                {/*the ternary checks to see if it has been touched focus/blurred then show error if exists else empty string*/}
+                <div className="text-help">
+                    {touched ? error : ''}
+                </div>
             </div>
         );
     }
 
     onSubmit(values) {
-
+        this.props.createPost(values);
     }
 
     render() {
@@ -58,6 +70,7 @@ class PostsNew extends Component {
                     component={this.renderField}
                 />
                 <button type="submit" className="btn btn-primary">Submit</button>
+                <Link to="/" className="btn btn-danger">Cancel</Link>
             </form>
         )
     }
@@ -70,7 +83,7 @@ function validate(values) {
     const errors = {};
 
     //validate the inputs from 'values', the errors.something there has to be the name field to link them
-    if (!values.title || values.title < 3) {
+    if (!values.title || values.title.length < 3) {
         errors.title = 'Enter a title that is at least 3 characters!';
     }
     if (!values.categories) {
@@ -89,4 +102,6 @@ export default reduxForm( {
     //form is the name of the form and the string just has to be unique
     form: 'PostsNewForm',
     validate
-})(PostsNew);
+})(
+    connect(null, { createPost })(PostsNew)
+);

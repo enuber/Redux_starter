@@ -20,13 +20,28 @@ class PostsNew extends Component {
                     type="text"
                     {...field.input}
                 />
+                {/*this is already apart of the field parameter so can just be pulled off*/}
+                {field.meta.error}
             </div>
         );
     }
 
+    onSubmit(values) {
+
+    }
+
     render() {
+        //pulling a function from props that is passed in with reduxForm. It is apart of reduxForm
+        //much like when we use connect with mapStateToProps etc, connect has functionality.
+        //handleSubmit is just a function that is apart of reduxForm pacakge
+        const { handleSubmit } = this.props;
+
         return (
-            <form>
+            //reduxForm handles state and validation only. Not saving data or making requests
+            //so handleSubmit handles reduxForm side of things and if it is okay then it calls the
+            //function we define to handle what we do with the data. we use .bind(this) to make sure that
+            //when the function gets called the correct this gets passed through so this === component
+            <form onSubmit={handleSubmit(this.onSubmit.bind(this))}>
                 <Field
                     label="Title For Post"
                     name="title"
@@ -42,13 +57,36 @@ class PostsNew extends Component {
                     name="content"
                     component={this.renderField}
                 />
+                <button type="submit" className="btn btn-primary">Submit</button>
             </form>
         )
     }
 
 }
 
+//values is an object that contains all values entered into the form
+function validate(values) {
+    //always have an errors object
+    const errors = {};
+
+    //validate the inputs from 'values', the errors.something there has to be the name field to link them
+    if (!values.title || values.title < 3) {
+        errors.title = 'Enter a title that is at least 3 characters!';
+    }
+    if (!values.categories) {
+        errors.categories = 'Enter Some Categories';
+    }
+    if (!values.content) {
+        errors.content = 'Please Enter Some Content Please';
+    }
+
+    //if errors is empty the form is fine to submit
+    //if errors has something in it, the form will not be submitted and that it is invalid
+    return errors;
+}
+
 export default reduxForm( {
     //form is the name of the form and the string just has to be unique
-    form: 'PostsNewForm'
+    form: 'PostsNewForm',
+    validate
 })(PostsNew);

@@ -39,7 +39,10 @@ class PostsNew extends Component {
     }
 
     onSubmit(values) {
-        this.props.createPost(values);
+        //this sets up a call back function which will take us to / after the post has successed.
+        this.props.createPost(values, () => {
+            this.props.history.push('/');
+        });
     }
 
     render() {
